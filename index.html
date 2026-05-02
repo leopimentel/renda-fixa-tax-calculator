@@ -34,16 +34,7 @@
         </header>
 
         <!-- Input Area -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tempo do Investimento (IR)</label>
-                <select id="prazo" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
-                    <option value="0.225">Até 6 meses (22,5%)</option>
-                    <option value="0.20">De 6 meses até 1 ano (20%)</option>
-                    <option value="0.175">De 1 ano a 2 anos (17,5%)</option>
-                    <option value="0.15">Acima de 2 anos (15%)</option>
-                </select>
-            </div>
+        <div class="grid grid-cols-1 gap-6 mb-8">
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Taxa Bruta Anual (%)</label>
                 <input type="number" id="taxaBruta" value="12.00" step="0.1" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
@@ -55,10 +46,11 @@
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-100 dark:bg-gray-700">
                     <tr>
-                        <th class="px-4 py-3">Taxa Bruta (Ano)</th>
-                        <th class="px-4 py-3">Alíquota IR</th>
-                        <th class="px-4 py-3">Desconto IR</th>
-                        <th class="px-4 py-3 text-blue-600 dark:text-blue-400">Taxa Líquida (Ano)</th>
+                        <th class="px-4 py-3">Taxa Bruta</th>
+                        <th class="px-4 py-3">22,5% até 6 meses</th>
+                        <th class="px-4 py-3">20% até 1 ano</th>
+                        <th class="px-4 py-3">17,5% 1 ano até 2 anos</th>
+                        <th class="px-4 py-3 text-blue-600 dark:text-blue-400">15% Acima de 2 anos</th>
                     </tr>
                 </thead>
                 <tbody id="resultado-corpo">
@@ -74,32 +66,32 @@
 
     <script>
         const inputTaxa = document.getElementById('taxaBruta');
-        const selectPrazo = document.getElementById('prazo');
         const resultadoCorpo = document.getElementById('resultado-corpo');
+        const aliquotas = [0.225, 0.20, 0.175, 0.15];
 
         function formatPercent(value) {
             return value.toFixed(2) + '%';
         }
 
-        function criarLinha(taxaBruta, aliquota, destaque) {
-            const desconto = taxaBruta * aliquota;
-            const liquida = taxaBruta - desconto;
+        function criarLinha(taxaBruta, destaque) {
             const rowClass = destaque
                 ? 'bg-blue-50 dark:bg-blue-900/20 border-b dark:border-blue-700'
                 : 'bg-white dark:bg-gray-800 border-b dark:border-gray-700';
             const textClass = destaque ? 'text-blue-800 dark:text-blue-200' : 'text-gray-900 dark:text-white';
+            const liquidas = aliquotas
+                .map(ir => formatPercent(taxaBruta * (1 - ir)))
+                .map(value => `<td class="px-4 py-4 ${textClass}">${value}</td>`)
+                .join('');
 
             return `
                 <tr class="${rowClass}">
                     <td class="px-4 py-4 font-medium ${textClass}">${formatPercent(taxaBruta)}</td>
-                    <td class="px-4 py-4 ${textClass}">${formatPercent(aliquota * 100)}</td>
-                    <td class="px-4 py-4 text-red-500 dark:text-red-400">-${formatPercent(desconto)}</td>
-                    <td class="px-4 py-4 font-bold text-green-600 dark:text-green-400">${formatPercent(liquida)}</td>
+                    ${liquidas}
                 </tr>
             `;
         }
 
-        function gerarLinhas(bruta, aliquota) {
+        function gerarLinhas(bruta) {
             const linhas = [];
             const passo = 0.5;
 
@@ -107,7 +99,7 @@
                 const taxaCalculada = +(bruta + i * passo).toFixed(2);
                 const taxaExibida = taxaCalculada > 0 ? taxaCalculada : 0;
                 const destaque = i === 0;
-                linhas.push(criarLinha(taxaExibida, aliquota, destaque));
+                linhas.push(criarLinha(taxaExibida, destaque));
             }
 
             return linhas.join('');
@@ -115,8 +107,7 @@
 
         function calcular() {
             const bruta = parseFloat(inputTaxa.value) || 0;
-            const aliquota = parseFloat(selectPrazo.value);
-            resultadoCorpo.innerHTML = gerarLinhas(bruta, aliquota);
+            resultadoCorpo.innerHTML = gerarLinhas(bruta);
         }
 
         function toggleDarkMode() {
@@ -127,7 +118,6 @@
         }
 
         inputTaxa.addEventListener('input', calcular);
-        selectPrazo.addEventListener('change', calcular);
 
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
