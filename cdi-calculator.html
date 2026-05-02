@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversor de Taxas Prefixadas | SDD Dark</title>
+    <title>Conversor de Taxas Prefixadas | CDI</title>
     
     <!-- 1. Carrega o script do Tailwind primeiro -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,12 +18,12 @@
 
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-300">
 
-    <div class="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 border border-transparent dark:border-gray-700">
+    <div class="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 border border-transparent dark:border-gray-700">
         
         <!-- Navigation Menu -->
         <nav class="flex justify-center mb-4">
-            <a href="index.html" class="px-4 py-2 bg-blue-500 text-white rounded-l-lg">Prefixada</a>
-            <a href="cdi-calculator.html" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-r-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">CDI</a>
+            <a href="index.html" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-l-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">Prefixada</a>
+            <a href="cdi-calculator.html" class="px-4 py-2 bg-blue-500 text-white rounded-r-lg">CDI</a>
         </nav>
         
         <!-- Toggle Dark Mode -->
@@ -36,14 +36,27 @@
         <!-- Header -->
         <header class="mb-8 text-center">
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white font-sans">Conversor de Taxas Prefixadas</h1>
-            <p class="text-gray-500 dark:text-gray-400">Compare rendimentos brutos vs. líquidos</p>
+            <p class="text-gray-500 dark:text-gray-400">Compare rendimentos CDI vs. LCA</p>
         </header>
 
         <!-- Input Area -->
-        <div class="grid grid-cols-1 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tempo do Investimento (IR)</label>
+                <select id="prazo" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
+                    <option value="0.225">Até 6 meses (22,5%)</option>
+                    <option value="0.20">De 6 meses até 1 ano (20%)</option>
+                    <option value="0.175">De 1 ano a 2 anos (17,5%)</option>
+                    <option value="0.15">Acima de 2 anos (15%)</option>
+                </select>
+            </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Taxa Bruta Anual (%)</label>
-                <input type="number" id="taxaBruta" value="12.00" step="0.1" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
+                <input type="number" id="taxaBruta" value="100.00" step="1" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">CDI Atual (%)</label>
+                <input type="number" id="cdiAtual" value="14.40" step="0.1" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
             </div>
         </div>
 
@@ -52,11 +65,10 @@
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-100 dark:bg-gray-700">
                     <tr>
-                        <th class="px-4 py-3">Taxa Bruta</th>
-                        <th class="px-4 py-3">22,5% até 6 meses</th>
-                        <th class="px-4 py-3">20% até 1 ano</th>
-                        <th class="px-4 py-3">17,5% 1 ano até 2 anos</th>
-                        <th class="px-4 py-3 text-blue-600 dark:text-blue-400">15% Acima de 2 anos</th>
+                        <th class="px-4 py-3">CDI (Ano)</th>
+                        <th class="px-4 py-3">CDI Bruto %</th>
+                        <th class="px-4 py-3">Taxa LCA %</th>
+                        <th class="px-4 py-3 text-blue-600 dark:text-blue-400">LCA Líquido %</th>
                     </tr>
                 </thead>
                 <tbody id="resultado-corpo">
@@ -72,40 +84,43 @@
 
     <script>
         const inputTaxa = document.getElementById('taxaBruta');
+        const inputCdi = document.getElementById('cdiAtual');
+        const selectPrazo = document.getElementById('prazo');
         const resultadoCorpo = document.getElementById('resultado-corpo');
-        const aliquotas = [0.225, 0.20, 0.175, 0.15];
 
         function formatPercent(value) {
             return value.toFixed(2) + '%';
         }
 
-        function criarLinha(taxaBruta, destaque) {
+        function criarLinha(cdiAno, aliquota, cdiAtual, destaque) {
+            const cdiBruto = cdiAno * (cdiAtual / 100);
+            const taxaLca = cdiAno * (1 - aliquota);
+            const lcaLiquido = cdiBruto * (1 - aliquota);
+            
             const rowClass = destaque
                 ? 'bg-blue-50 dark:bg-blue-900/20 border-b dark:border-blue-700'
                 : 'bg-white dark:bg-gray-800 border-b dark:border-gray-700';
             const textClass = destaque ? 'text-blue-800 dark:text-blue-200' : 'text-gray-900 dark:text-white';
-            const liquidas = aliquotas
-                .map(ir => formatPercent(taxaBruta * (1 - ir)))
-                .map(value => `<td class="px-4 py-4 ${textClass}">${value}</td>`)
-                .join('');
 
             return `
                 <tr class="${rowClass}">
-                    <td class="px-4 py-4 font-medium ${textClass}">${formatPercent(taxaBruta)}</td>
-                    ${liquidas}
+                    <td class="px-4 py-4 font-medium ${textClass}">${formatPercent(cdiAno)}</td>
+                    <td class="px-4 py-4 ${textClass}">${formatPercent(cdiBruto)}</td>
+                    <td class="px-4 py-4 ${textClass}">${formatPercent(taxaLca)}</td>
+                    <td class="px-4 py-4 font-bold text-green-600 dark:text-green-400">${formatPercent(lcaLiquido)}</td>
                 </tr>
             `;
         }
 
-        function gerarLinhas(bruta) {
+        function gerarLinhas(bruta, aliquota, cdiAtual) {
             const linhas = [];
-            const passo = 0.5;
+            const passo = 1;
 
             for (let i = -7; i <= 7; i += 1) {
                 const taxaCalculada = +(bruta + i * passo).toFixed(2);
                 const taxaExibida = taxaCalculada > 0 ? taxaCalculada : 0;
                 const destaque = i === 0;
-                linhas.push(criarLinha(taxaExibida, destaque));
+                linhas.push(criarLinha(taxaExibida, aliquota, cdiAtual, destaque));
             }
 
             return linhas.join('');
@@ -113,7 +128,9 @@
 
         function calcular() {
             const bruta = parseFloat(inputTaxa.value) || 0;
-            resultadoCorpo.innerHTML = gerarLinhas(bruta);
+            const aliquota = parseFloat(selectPrazo.value);
+            const cdiAtual = parseFloat(inputCdi.value) || 0;
+            resultadoCorpo.innerHTML = gerarLinhas(bruta, aliquota, cdiAtual);
         }
 
         function toggleDarkMode() {
@@ -124,6 +141,8 @@
         }
 
         inputTaxa.addEventListener('input', calcular);
+        inputCdi.addEventListener('input', calcular);
+        selectPrazo.addEventListener('change', calcular);
 
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
