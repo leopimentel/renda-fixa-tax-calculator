@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Taxas Prefixadas | SDD Dark</title>
+    
+    <!-- 1. Carrega o script do Tailwind primeiro -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Configura o Tailwind logo em seguida -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-300">
+
+    <div class="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 border border-transparent dark:border-gray-700">
+        
+        <!-- Toggle Dark Mode -->
+        <div class="flex justify-end mb-4">
+            <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
+                <span id="dark-icon">🌙</span>
+            </button>
+        </div>
+
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white font-sans">Conversor de Taxas Prefixadas</h1>
+            <p class="text-gray-500 dark:text-gray-400">Compare rendimentos brutos vs. líquidos</p>
+        </header>
+
+        <!-- Input Area -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tempo do Investimento (IR)</label>
+                <select id="prazo" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
+                    <option value="0.225">Até 6 meses (22,5%)</option>
+                    <option value="0.20">De 6 meses até 1 ano (20%)</option>
+                    <option value="0.175">De 1 ano a 2 anos (17,5%)</option>
+                    <option value="0.15">Acima de 2 anos (15%)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Taxa Bruta Anual (%)</label>
+                <input type="number" id="taxaBruta" value="12.00" step="0.1" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
+            </div>
+        </div>
+
+        <!-- Output Area (Tabela) -->
+        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-100 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-3">Taxa Bruta (Ano)</th>
+                        <th class="px-4 py-3">Alíquota IR</th>
+                        <th class="px-4 py-3">Desconto IR</th>
+                        <th class="px-4 py-3 text-blue-600 dark:text-blue-400">Taxa Líquida (Ano)</th>
+                    </tr>
+                </thead>
+                <tbody id="resultado-corpo">
+                    <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
+                        <td id="cell-bruta" class="px-4 py-4 font-medium text-gray-900 dark:text-white">-</td>
+                        <td id="cell-aliquota" class="px-4 py-4">-</td>
+                        <td id="cell-desconto" class="px-4 py-4 text-red-500 dark:text-red-400">-</td>
+                        <td id="cell-liquida" class="px-4 py-4 font-bold text-green-600 dark:text-green-400">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+            Spec-Driven Development
+        </footer>
+    </div>
+
+    <script>
+        const inputTaxa = document.getElementById('taxaBruta');
+        const selectPrazo = document.getElementById('prazo');
+        
+        const cellBruta = document.getElementById('cell-bruta');
+        const cellAliquota = document.getElementById('cell-aliquota');
+        const cellDesconto = document.getElementById('cell-desconto');
+        const cellLiquida = document.getElementById('cell-liquida');
+
+        function calcular() {
+            const bruta = parseFloat(inputTaxa.value) || 0;
+            const ir = parseFloat(selectPrazo.value);
+            
+            const valorDesconto = bruta * ir;
+            const liquida = bruta - valorDesconto;
+
+            cellBruta.innerText = bruta.toFixed(2) + '%';
+            cellAliquota.innerText = (ir * 100).toFixed(1) + '%';
+            cellDesconto.innerText = '-' + valorDesconto.toFixed(2) + '%';
+            cellLiquida.innerText = liquida.toFixed(2) + '%';
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('dark-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.innerText = '🌙';
+            } else {
+                html.classList.add('dark');
+                icon.innerText = '☀️';
+            }
+        }
+
+        inputTaxa.addEventListener('input', calcular);
+        selectPrazo.addEventListener('change', calcular);
+
+        // Inicia no modo preferido do sistema
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            toggleDarkMode();
+        }
+
+        calcular();
+    </script>
+</body>
+</html>
