@@ -62,12 +62,7 @@
                     </tr>
                 </thead>
                 <tbody id="resultado-corpo">
-                    <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
-                        <td id="cell-bruta" class="px-4 py-4 font-medium text-gray-900 dark:text-white">-</td>
-                        <td id="cell-aliquota" class="px-4 py-4">-</td>
-                        <td id="cell-desconto" class="px-4 py-4 text-red-500 dark:text-red-400">-</td>
-                        <td id="cell-liquida" class="px-4 py-4 font-bold text-green-600 dark:text-green-400">-</td>
-                    </tr>
+                    <!-- Linhas geradas dinamicamente pelo JavaScript -->
                 </tbody>
             </table>
         </div>
@@ -80,43 +75,63 @@
     <script>
         const inputTaxa = document.getElementById('taxaBruta');
         const selectPrazo = document.getElementById('prazo');
-        
-        const cellBruta = document.getElementById('cell-bruta');
-        const cellAliquota = document.getElementById('cell-aliquota');
-        const cellDesconto = document.getElementById('cell-desconto');
-        const cellLiquida = document.getElementById('cell-liquida');
+        const resultadoCorpo = document.getElementById('resultado-corpo');
+
+        function formatPercent(value) {
+            return value.toFixed(2) + '%';
+        }
+
+        function criarLinha(taxaBruta, aliquota, destaque) {
+            const desconto = taxaBruta * aliquota;
+            const liquida = taxaBruta - desconto;
+            const rowClass = destaque
+                ? 'bg-blue-50 dark:bg-blue-900/20 border-b dark:border-blue-700'
+                : 'bg-white dark:bg-gray-800 border-b dark:border-gray-700';
+            const textClass = destaque ? 'text-blue-800 dark:text-blue-200' : 'text-gray-900 dark:text-white';
+
+            return `
+                <tr class="${rowClass}">
+                    <td class="px-4 py-4 font-medium ${textClass}">${formatPercent(taxaBruta)}</td>
+                    <td class="px-4 py-4 ${textClass}">${formatPercent(aliquota * 100)}</td>
+                    <td class="px-4 py-4 text-red-500 dark:text-red-400">-${formatPercent(desconto)}</td>
+                    <td class="px-4 py-4 font-bold text-green-600 dark:text-green-400">${formatPercent(liquida)}</td>
+                </tr>
+            `;
+        }
+
+        function gerarLinhas(bruta, aliquota) {
+            const linhas = [];
+            const passo = 0.5;
+
+            for (let i = -7; i <= 7; i += 1) {
+                const taxaCalculada = +(bruta + i * passo).toFixed(2);
+                const taxaExibida = taxaCalculada > 0 ? taxaCalculada : 0;
+                const destaque = i === 0;
+                linhas.push(criarLinha(taxaExibida, aliquota, destaque));
+            }
+
+            return linhas.join('');
+        }
 
         function calcular() {
             const bruta = parseFloat(inputTaxa.value) || 0;
-            const ir = parseFloat(selectPrazo.value);
-            
-            const valorDesconto = bruta * ir;
-            const liquida = bruta - valorDesconto;
-
-            cellBruta.innerText = bruta.toFixed(2) + '%';
-            cellAliquota.innerText = (ir * 100).toFixed(1) + '%';
-            cellDesconto.innerText = '-' + valorDesconto.toFixed(2) + '%';
-            cellLiquida.innerText = liquida.toFixed(2) + '%';
+            const aliquota = parseFloat(selectPrazo.value);
+            resultadoCorpo.innerHTML = gerarLinhas(bruta, aliquota);
         }
 
         function toggleDarkMode() {
             const html = document.documentElement;
             const icon = document.getElementById('dark-icon');
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                icon.innerText = '🌙';
-            } else {
-                html.classList.add('dark');
-                icon.innerText = '☀️';
-            }
+            const isDark = html.classList.toggle('dark');
+            icon.innerText = isDark ? '☀️' : '🌙';
         }
 
         inputTaxa.addEventListener('input', calcular);
         selectPrazo.addEventListener('change', calcular);
 
-        // Inicia no modo preferido do sistema
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            toggleDarkMode();
+            document.documentElement.classList.add('dark');
+            document.getElementById('dark-icon').innerText = '☀️';
         }
 
         calcular();

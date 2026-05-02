@@ -3,9 +3,9 @@ SPEC-001: Calculadora de Equivalência de Renda Fixa
 1. Objetivo
 Criar uma página estática que ajude o investidor a comparar taxas prefixadas brutas vs. líquidas, aplicando a regressiva do IR baseada no prazo selecionado.
 
-2. Stack Tecnológica SugeridaLinguagem: HTML5, Tailwind CSS, JavaScript (Vanilla ou React).Hospedagem: Estática (Vercel, Netlify ou GitHub Pages).
+2. Stack Tecnológica SugeridaLinguagem: HTML5, Tailwind CSS, JavaScript (Vanilla).Hospedagem: Estática (Vercel, Netlify ou GitHub Pages).
 
-3. Regras de Negócio (Lógica do IR)O sistema deve aplicar a alíquota baseada no prazo escolhido no dropdown:
+3. Regras de Negócio (Lógica do IR). O sistema deve aplicar a alíquota baseada no prazo escolhido no dropdown:
 
 - < 6 meses: 22,5%
 - 6 meses a 1 ano: 20%
@@ -22,6 +22,8 @@ Criar uma página estática que ajude o investidor a comparar taxas prefixadas b
   2. Alíquota IR: A porcentagem de imposto correspondente ao prazo.
   3. Desconto IR: Valor da taxa que vai para o governo.
   4. Taxa Líquida (Ano): O resultado final (Bruto * (1 - IR)).
+  5. A tabela deve ter 15 linhas ao total, 7 com taxas decrescendo em 0,5% do que a informada, desde que seja maior que 0 a menor delas. E deve ter 7 com taxas acrescidas em 0,5% da informada. 
+  6. Destaque a linha da tabela com o valor informado.
 
 5. Critérios de Aceite
 - A tabela deve atualizar automaticamente ao mudar o dropdown ou a taxa.
