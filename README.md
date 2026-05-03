@@ -32,21 +32,6 @@ Calculadora de Equivalência de Renda Fixa - Compare rendimentos brutos vs. líq
 
 ## Deploy
 
-### Vercel
-
-1. Faça login no [Vercel](https://vercel.com).
-2. Clique em "New Project".
-3. Conecte seu repositório GitHub.
-4. Selecione o diretório raiz do projeto.
-5. Clique em "Deploy".
-
-### Netlify
-
-1. Faça login no [Netlify](https://netlify.com).
-2. Clique em "Sites" > "Deploy manually".
-3. Arraste e solte os arquivos do projeto (index.html, etc.).
-4. Ou conecte seu repositório GitHub para deploy automático.
-
 ### GitHub Pages
 
 1. Vá para as configurações do repositório no GitHub.
@@ -54,6 +39,7 @@ Calculadora de Equivalência de Renda Fixa - Compare rendimentos brutos vs. líq
 3. Selecione "Deploy from a branch" e escolha a branch main.
 4. Clique em "Save".
 5. O site será hospedado em `https://<username>.github.io/<repo-name>/`.
+https://leopimentel.github.io/renda-fixa-tax-calculator/cdi-calculator.html
 
 ## Desenvolvimento
 

@@ -14,6 +14,9 @@
             darkMode: 'class'
         }
     </script>
+    
+    <!-- 3. Código compartilhado -->
+    <script src="shared.js"></script>
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-300">
@@ -88,10 +91,6 @@
         const selectPrazo = document.getElementById('prazo');
         const resultadoCorpo = document.getElementById('resultado-corpo');
 
-        function formatPercent(value) {
-            return value.toFixed(2) + '%';
-        }
-
         function criarLinha(cdiAno, aliquota, cdiAtual, destaque) {
             const cdiBruto = cdiAno * (cdiAtual / 100);
             const taxaLca = cdiAno * (1 - aliquota);
@@ -133,22 +132,11 @@
             resultadoCorpo.innerHTML = gerarLinhas(bruta, aliquota, cdiAtual);
         }
 
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            const icon = document.getElementById('dark-icon');
-            const isDark = html.classList.toggle('dark');
-            icon.innerText = isDark ? '☀️' : '🌙';
-        }
-
         inputTaxa.addEventListener('input', calcular);
         inputCdi.addEventListener('input', calcular);
         selectPrazo.addEventListener('change', calcular);
 
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-            document.getElementById('dark-icon').innerText = '☀️';
-        }
-
+        initDarkMode();
         calcular();
     </script>
 </body>
