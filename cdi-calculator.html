@@ -3,89 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversor de Taxas Prefixadas | CDI</title>
-    
-    <!-- 1. Carrega o script do Tailwind primeiro -->
+    <title>Conversor de Taxas CDI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- 2. Configura o Tailwind logo em seguida -->
     <script>
-        tailwind.config = {
-            darkMode: 'class'
-        }
+        tailwind.config = { darkMode: 'class' }
     </script>
-    
-    <!-- 3. Código compartilhado -->
     <script src="shared.js"></script>
+    <script src="layout.js"></script>
 </head>
-
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-300">
-
-    <div class="max-w-4xl w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 border border-transparent dark:border-gray-700">
-        
-        <!-- Navigation Menu -->
-        <nav class="flex justify-center mb-4">
-            <a href="index.html" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-l-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">Prefixada</a>
-            <a href="cdi-calculator.html" class="px-4 py-2 bg-blue-500 text-white rounded-r-lg">CDI</a>
-        </nav>
-        
-        <!-- Toggle Dark Mode -->
-        <div class="flex justify-end mb-4">
-            <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
-                <span id="dark-icon">🌙</span>
-            </button>
-        </div>
-
-        <!-- Header -->
-        <header class="mb-8 text-center">
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white font-sans">Conversor de Taxas Prefixadas</h1>
-            <p class="text-gray-500 dark:text-gray-400">Compare rendimentos CDI vs. LCA</p>
-        </header>
-
-        <!-- Input Area -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tempo do Investimento (IR)</label>
-                <select id="prazo" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
-                    <option value="0.225">Até 6 meses (22,5%)</option>
-                    <option value="0.20">De 6 meses até 1 ano (20%)</option>
-                    <option value="0.175">De 1 ano a 2 anos (17,5%)</option>
-                    <option value="0.15">Acima de 2 anos (15%)</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Taxa Bruta Anual (%)</label>
-                <input type="number" id="taxaBruta" value="100.00" step="1" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">CDI Atual (%)</label>
-                <input type="number" id="cdiAtual" value="14.40" step="0.1" class="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2.5 bg-gray-50 dark:bg-gray-700 dark:text-white border">
-            </div>
-        </div>
-
-        <!-- Output Area (Tabela) -->
-        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-100 dark:bg-gray-700">
-                    <tr>
-                        <th class="px-4 py-3">CDI (Ano)</th>
-                        <th class="px-4 py-3">CDI Bruto %</th>
-                        <th class="px-4 py-3">Taxa LCA %</th>
-                        <th class="px-4 py-3 text-blue-600 dark:text-blue-400">LCA Líquido %</th>
-                    </tr>
-                </thead>
-                <tbody id="resultado-corpo">
-                    <!-- Linhas geradas dinamicamente pelo JavaScript -->
-                </tbody>
-            </table>
-        </div>
-
-        <footer class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-            Spec-Driven Development
-        </footer>
-    </div>
-
+    <div id="app"></div>
     <script>
+        const prazoOptions = `
+            <option value="0.225">Até 6 meses (22,5%)</option>
+            <option value="0.20">De 6 meses até 1 ano (20%)</option>
+            <option value="0.175">De 1 ano a 2 anos (17,5%)</option>
+            <option value="0.15">Acima de 2 anos (15%)</option>
+        `;
+        
+        const inputsHTML = `
+            ${createInputHTML('select', 'prazo', 'Tempo do Investimento (IR)', '', prazoOptions)}
+            ${createInputHTML('number', 'taxaBruta', 'Taxa Bruta Anual (%)', '100.00', 'step="1"')}
+            ${createInputHTML('number', 'cdiAtual', 'CDI Atual (%)', '14.40', 'step="0.1"')}
+        `;
+        
+        const tableHTML = createTableHTML([
+            { text: 'CDI (Ano)' },
+            { text: 'CDI Bruto %' },
+            { text: 'Taxa LCA %' },
+            { text: 'LCA Líquido %', highlight: true }
+        ]);
+
+        renderLayout({
+            currentPage: 'cdi',
+            title: 'Conversor de Taxas Prefixadas',
+            subtitle: 'Compare rendimentos CDI vs. LCA',
+            inputsHTML,
+            tableHTML,
+            maxWidth: 'max-w-4xl'
+        });
+
         const inputTaxa = document.getElementById('taxaBruta');
         const inputCdi = document.getElementById('cdiAtual');
         const selectPrazo = document.getElementById('prazo');
@@ -99,15 +56,7 @@
             const lcaLiquido = cdiBruto * (1 - aliquota);
             
             const { rowClass, textClass } = getRowClasses(destaque);
-
-            return `
-                <tr class="${rowClass}">
-                    <td class="px-4 py-4 font-medium ${textClass}">${formatPercent(cdiAno)}</td>
-                    <td class="px-4 py-4 ${textClass}">${formatPercent(cdiBruto)}</td>
-                    <td class="px-4 py-4 ${textClass}">${formatPercent(taxaLca)}</td>
-                    <td class="px-4 py-4 font-bold text-green-600 dark:text-green-400">${formatPercent(lcaLiquido)}</td>
-                </tr>
-            `;
+            return `<tr class="${rowClass}"><td class="px-4 py-4 font-medium ${textClass}">${formatPercent(cdiAno)}</td><td class="px-4 py-4 ${textClass}">${formatPercent(cdiBruto)}</td><td class="px-4 py-4 ${textClass}">${formatPercent(taxaLca)}</td><td class="px-4 py-4 font-bold text-green-600 dark:text-green-400">${formatPercent(lcaLiquido)}</td></tr>`;
         }
 
         function calcular() {
