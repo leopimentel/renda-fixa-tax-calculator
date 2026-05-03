@@ -79,10 +79,7 @@
         const aliquotas = [0.225, 0.20, 0.175, 0.15];
 
         function criarLinha(taxaBruta, destaque) {
-            const rowClass = destaque
-                ? 'bg-blue-50 dark:bg-blue-900/20 border-b dark:border-blue-700'
-                : 'bg-white dark:bg-gray-800 border-b dark:border-gray-700';
-            const textClass = destaque ? 'text-blue-800 dark:text-blue-200' : 'text-gray-900 dark:text-white';
+            const { rowClass, textClass } = getRowClasses(destaque);
             const liquidas = aliquotas
                 .map(ir => formatPercent(taxaBruta * (1 - ir)))
                 .map(value => `<td class="px-4 py-4 ${textClass}">${value}</td>`)
@@ -96,27 +93,11 @@
             `;
         }
 
-        function gerarLinhas(bruta) {
-            const linhas = [];
-            const passo = 0.5;
-
-            for (let i = -7; i <= 7; i += 1) {
-                const taxaCalculada = +(bruta + i * passo).toFixed(2);
-                const taxaExibida = taxaCalculada > 0 ? taxaCalculada : 0;
-                const destaque = i === 0;
-                linhas.push(criarLinha(taxaExibida, destaque));
-            }
-
-            return linhas.join('');
-        }
-
         function calcular() {
-            const bruta = parseFloat(inputTaxa.value) || 0;
-            resultadoCorpo.innerHTML = gerarLinhas(bruta);
+            resultadoCorpo.innerHTML = gerarLinhasGenerico(parseFloat(inputTaxa.value) || 0, 0.5, criarLinha);
         }
 
         inputTaxa.addEventListener('input', calcular);
-        
         initDarkMode();
         calcular();
     </script>

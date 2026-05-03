@@ -91,15 +91,14 @@
         const selectPrazo = document.getElementById('prazo');
         const resultadoCorpo = document.getElementById('resultado-corpo');
 
-        function criarLinha(cdiAno, aliquota, cdiAtual, destaque) {
+        function criarLinha(cdiAno, destaque) {
+            const aliquota = parseFloat(selectPrazo.value);
+            const cdiAtual = parseFloat(inputCdi.value) || 0;
             const cdiBruto = cdiAno * (cdiAtual / 100);
             const taxaLca = cdiAno * (1 - aliquota);
             const lcaLiquido = cdiBruto * (1 - aliquota);
             
-            const rowClass = destaque
-                ? 'bg-blue-50 dark:bg-blue-900/20 border-b dark:border-blue-700'
-                : 'bg-white dark:bg-gray-800 border-b dark:border-gray-700';
-            const textClass = destaque ? 'text-blue-800 dark:text-blue-200' : 'text-gray-900 dark:text-white';
+            const { rowClass, textClass } = getRowClasses(destaque);
 
             return `
                 <tr class="${rowClass}">
@@ -111,25 +110,9 @@
             `;
         }
 
-        function gerarLinhas(bruta, aliquota, cdiAtual) {
-            const linhas = [];
-            const passo = 1;
-
-            for (let i = -7; i <= 7; i += 1) {
-                const taxaCalculada = +(bruta + i * passo).toFixed(2);
-                const taxaExibida = taxaCalculada > 0 ? taxaCalculada : 0;
-                const destaque = i === 0;
-                linhas.push(criarLinha(taxaExibida, aliquota, cdiAtual, destaque));
-            }
-
-            return linhas.join('');
-        }
-
         function calcular() {
             const bruta = parseFloat(inputTaxa.value) || 0;
-            const aliquota = parseFloat(selectPrazo.value);
-            const cdiAtual = parseFloat(inputCdi.value) || 0;
-            resultadoCorpo.innerHTML = gerarLinhas(bruta, aliquota, cdiAtual);
+            resultadoCorpo.innerHTML = gerarLinhasGenerico(bruta, 1, criarLinha);
         }
 
         inputTaxa.addEventListener('input', calcular);
