@@ -3,19 +3,27 @@ function formatPercent(value) {
     return value.toFixed(2) + '%';
 }
 
-// Alternar Dark Mode
+// Alternar Dark Mode e salvar preferência
 function toggleDarkMode() {
     const html = document.documentElement;
     const icon = document.getElementById('dark-icon');
     const isDark = html.classList.toggle('dark');
     icon.innerText = isDark ? '☀️' : '🌙';
+    localStorage.setItem('darkMode', isDark ? 'true' : 'false');
 }
 
-// Inicializar Dark Mode baseado nas preferências do sistema
+// Inicializar Dark Mode baseado nas preferências salvas ou do sistema
 function initDarkMode() {
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    const savedMode = localStorage.getItem('darkMode');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = savedMode !== null ? savedMode === 'true' : prefersDark;
+    
+    if (isDark) {
         document.documentElement.classList.add('dark');
         document.getElementById('dark-icon').innerText = '☀️';
+    } else {
+        document.documentElement.classList.remove('dark');
+        document.getElementById('dark-icon').innerText = '🌙';
     }
 }
 
