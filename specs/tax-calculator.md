@@ -11,6 +11,7 @@ Criar uma página estática que ajude o investidor a comparar taxas prefixadas b
 - 6 meses a 1 ano: 20%
 - 1 ano a 2 anos: 17,5%
 - > 2 anos: 15%
+- sem IR (0%)
 
 4. Interface (UI/UX)
 - Header: Título "Conversor de Taxas Prefixadas".
